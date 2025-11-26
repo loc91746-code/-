@@ -1,0 +1,5 @@
+{
+  "name": "Eco-Warrior: Screen Saver",
+  "description": "A fast-paced reflex game where you act as the office energy manager. Turn off the rogue monitors before the system overloads! Uses Gemini to generate personalized eco-feedback.",
+  "requestFramePermissions": []
+}
