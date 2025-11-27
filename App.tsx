@@ -6,7 +6,7 @@ import { EarthFeedback } from './components/EarthFeedback';
 import { generateEcoFeedback } from './services/geminiService';
 import { playSound, startMusic, stopMusic } from './services/audioService';
 import { GameState, MonitorState } from './types';
-import { PlayIcon, ArrowPathIcon, ForwardIcon } from '@heroicons/react/24/solid';
+import { PlayIcon, ArrowPathIcon, ForwardIcon, ShareIcon } from '@heroicons/react/24/solid';
 
 const GRID_SIZE = 12; // 12 screens
 const MAX_LEVELS = 3;
@@ -35,6 +35,9 @@ export default function App() {
   const [spawnCount, setSpawnCount] = useState(0);
   const [hitCount, setHitCount] = useState(0);
   const [missedCount, setMissedCount] = useState(0);
+  
+  // Share button state
+  const [shareText, setShareText] = useState("Share Challenge");
 
   // Refs
   const spawnerRef = useRef<number | null>(null);
@@ -179,6 +182,36 @@ export default function App() {
     };
   }, [gameState, level]);
 
+  // Handle Share Function
+  const handleShare = async () => {
+    const url = window.location.href;
+    let text = "Help me save energy in Office Power Saver!";
+    
+    if (gameState === GameState.WON) {
+      text = `I saved ${score} Watts and beat the game! Can you do better? #OfficePowerSaver`;
+    } else if (gameState === GameState.LOST) {
+      text = `System Meltdown! I saved ${score} Watts but the system overloaded. Beat my score! #OfficePowerSaver`;
+    }
+
+    const shareData = {
+      title: 'Office Power Saver',
+      text: text,
+      url: url
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        setShareText("Copied to Clipboard!");
+        setTimeout(() => setShareText("Share Challenge"), 2000);
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
+
 
   // --- Render Helpers ---
 
@@ -267,6 +300,16 @@ export default function App() {
             {isMenu ? <PlayIcon className="w-6 h-6" /> : isLevelComplete ? <ForwardIcon className="w-6 h-6" /> : <ArrowPathIcon className="w-6 h-6" />}
             {buttonText}
           </button>
+          
+          {/* Share Button - Visible on Menu, Won, Lost */}
+          <button
+            onClick={handleShare}
+            className="mt-3 w-full py-3 rounded-xl text-cyan-400 font-bold text-lg border-2 border-cyan-900/50 hover:bg-cyan-900/20 hover:border-cyan-500 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <ShareIcon className="w-5 h-5" />
+            {shareText}
+          </button>
+
         </div>
       </div>
     );
