@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 
 interface MonitorProps {
@@ -39,14 +40,14 @@ export const Monitor: React.FC<MonitorProps> = ({
 
   // Determine screen color based on state
   const screenColor = isOn 
-    ? 'bg-blue-50 shadow-[0_0_20px_rgba(34,211,238,0.6)]' 
+    ? 'bg-blue-100 shadow-[0_0_20px_rgba(56,189,248,0.5)]' 
     : 'bg-gray-900';
 
   // Construct the Avatar URL
-  // Switched to 'bottts-neutral' (Robots) for a "System Glitch/Rogue AI" look.
-  // Uses the unique seed passed from App.tsx for variety.
-  const seed = characterSeed || 'system-default';
-  const avatarUrl = `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=${seed}`;
+  // Switched to 'avataaars' (Office Workers) for an "Office Power Saver" look.
+  // Using a fun background color to make them pop.
+  const seed = characterSeed || 'office-default';
+  const avatarUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${seed}&backgroundColor=c0aede,b6e3f4`;
 
   const content = isOn ? (
     <div className="w-full h-full relative overflow-hidden group-hover:scale-105 transition-transform duration-200 flex items-end justify-center">
@@ -54,7 +55,7 @@ export const Monitor: React.FC<MonitorProps> = ({
       <img 
         src={avatarUrl}
         alt="Active Screen Character"
-        className="w-[85%] h-[85%] object-contain object-center drop-shadow-lg mb-1"
+        className="w-[90%] h-[90%] object-contain object-bottom drop-shadow-md"
         draggable={false}
       />
       {/* Timer Bar (Visual indicator of duration) */}
@@ -68,9 +69,8 @@ export const Monitor: React.FC<MonitorProps> = ({
         ></div>
       </div>
 
-      {/* Glitch/Scanline overlay effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent opacity-20 pointer-events-none"></div>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] pointer-events-none"></div>
+      {/* Screen Glare/Reflection */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none"></div>
       
       <style>{`
         @keyframes shrink {

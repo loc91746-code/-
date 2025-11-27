@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Monitor } from './components/Monitor';
 import { GameHUD } from './components/GameHUD';
 import { EarthFeedback } from './components/EarthFeedback';
 import { generateEcoFeedback } from './services/geminiService';
+import { playSound, startMusic, stopMusic } from './services/audioService';
 import { GameState, MonitorState } from './types';
 import { PlayIcon, ArrowPathIcon, ForwardIcon } from '@heroicons/react/24/solid';
 
@@ -54,12 +56,17 @@ export default function App() {
     setLevel(1);
     setFeedback('');
     resetLevelCounters();
+    playSound('spawn');
+    startMusic(1); // Start music with Level 1 intensity
   };
 
   const startNextLevel = () => {
     setGameState(GameState.PLAYING);
-    setLevel(prev => prev + 1);
+    const nextLevel = level + 1;
+    setLevel(nextLevel);
     resetLevelCounters();
+    playSound('spawn');
+    startMusic(nextLevel); // Increase intensity
   };
 
   const resetLevelCounters = () => {
@@ -72,6 +79,7 @@ export default function App() {
   const handleMonitorClick = (id: number) => {
     if (gameState !== GameState.PLAYING) return;
 
+    playSound('click');
     setScreens(prev => 
       prev.map(s => s.id === id ? { ...s, isOn: false } : s)
     );
@@ -83,6 +91,7 @@ export default function App() {
     if (gameState !== GameState.PLAYING) return;
     
     // Screen turns off automatically
+    playSound('miss');
     setScreens(prev => 
       prev.map(s => s.id === id ? { ...s, isOn: false } : s)
     );
@@ -91,8 +100,11 @@ export default function App() {
 
   const endGame = useCallback(async (won: boolean) => {
     if (spawnerRef.current) clearInterval(spawnerRef.current);
+    stopMusic(); // Stop the tense music
 
     setGameState(won ? GameState.WON : GameState.LOST);
+    if (won) playSound('gameWon');
+    else playSound('gameOver');
     
     setLoadingFeedback(true);
     const feedbackText = await generateEcoFeedback(score, won);
@@ -102,6 +114,8 @@ export default function App() {
 
   const completeLevel = useCallback(() => {
     if (spawnerRef.current) clearInterval(spawnerRef.current);
+    stopMusic(); // Stop music between levels
+    playSound('levelComplete');
     setGameState(GameState.LEVEL_COMPLETE);
   }, []);
 
@@ -144,8 +158,13 @@ export default function App() {
             const randomIndex = Math.floor(Math.random() * offScreens.length);
             const targetId = offScreens[randomIndex].id;
             
-            // Randomize ID to get different robots each spawn
-            const characterId = `Bot-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+            // Randomize ID to get different workers each spawn
+            // Changed prefix to 'Worker' to match the new visual theme
+            const characterId = `Worker-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+            // Play a spawn sound occasionally or just visual? 
+            // Playing sound on every spawn might be chaotic if too fast, but let's try it for feedback.
+            playSound('spawn');
 
             return prevScreens.map(s => s.id === targetId ? { ...s, isOn: true, characterSeed: characterId } : s);
           });
